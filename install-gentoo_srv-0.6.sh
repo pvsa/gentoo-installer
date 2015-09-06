@@ -53,7 +53,7 @@
 # rc-update sshd (abfrage in cmd), wenn angegeben ja ansonsten nix
 # Prozessorkerne und emerge -j Option
 ### DEBUG
-set -x
+#set -x
 #
 
 # Set default editor
