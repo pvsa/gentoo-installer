@@ -68,13 +68,12 @@ if [ "$1" != '-q' ] && [ "$1" != "-i" ] || [ $# = 0 ]; then
 	echo "-q : quiet Installation with defaults (for quiet you have to set >IP,gateway< or >dhcp<)"
         #echo "-n=hostname : Name of the host aka. hostname or hostname.domnain.tld (FQDN)"
 	echo "-i : interactive"
-	#echo "The mode (-q/-i/-h) is the first argument." # nicht mehr
 	echo "-om: own mirror. You can specify altenativ mirror interactivly"
 	echo "-pd : Predefined disks (Expecting:"
 	echo "		already mounted disks (/mnt/xxx/ and /mnt/xxx/boot) "
 	echo "      with empty filesystem on it "
 	echo "		and not chrooted." 
-	echo "		This is recommend for md or additional swap usage"
+	echo "		This is recommend for md"
 	echo "		For md-devices respect the metadata=0.9 for grub(1)"
 	echo "THIS IS BETA STUFF. Please use only empty systems. Script erase disk to install !"
 	exit 1
