@@ -43,8 +43,8 @@
 # emerge -j CPU#
 # TODO
 # Kernel config on own mirror
+# offer precompiled VM Kernel
 # modules check (loaded in grml) and in the kernel
-## falkland-Features
 # -> obsolet wg udev dev/pts sauber in die fstab (nicht aus dem live-system) oder das nehmen, das drin ist
 # TEST: modules fuer hdd/net in kernel pruefen
 # udev renaming eth to enp ln /dev/null /etc/udev/rules.d/80-net-name-slot.rules
@@ -363,8 +363,9 @@ $NRML
  chroot $MNTRT /bin/bash -c "emerge -q -j$CPU gentoo-sources"
  LINUX="`ls $MNTRT/usr/src/linux-*`"
  chroot $MNTRT /bin/bash -c "ln -s /usr/src/$LINUX /usr/src/linux"
- wget http://kernel.alioth.debian.org/config/3.0.0-5/config_amd64_none_amd64 
- cp config_amd64_none_amd64 $MNTRT/usr/src/linux/.config
+ wget http://www.pilarkto.net/mirror/config-latest 
+ cp config-latest $MNTRT/usr/src/linux/.config
+ mv config-latest $MNTRT/usr/src/$LINUX-config
  #echo "to setup default settings just save the config and exit [Enter=Go on]"
  #read
 $GRUEN && echo "Compiling Kernel"
@@ -450,12 +451,14 @@ $GELB
 # needed net modules check
 NETMOD="`lsmod|grep net|cut -d ' ' -f 1`"
 #NETINKERN="`cat $MNTRT/boot/config-$KERNVER |grep -i net`"
-echo -e "Needed net modules loaded: \n $NETMOD"
+echo "Needed net modules loaded:"
+echo "$NETMOD"
 #echo "Needed net device in (new) kernel-config: $NETINKERN"
 # needed hdd modules check
 HDDMOD="`lsmod|grep ata|cut -d ' ' -f 1`"
 #HDDINKERN="`cat $MNTRT/boot/config-$KERNVER |grep -i ata`"
-echo -e "Needed net modules loaded: \n $HDDMOD"
+echo "Needed net modules loaded: "
+echo "$HDDMOD"
 #echo "Needed net device in (new) kernel-config: $HDDINKERN"
 $GELB
 echo "Please double check the listed modules and there corresponding kernel-config-option \ 
@@ -464,7 +467,7 @@ $NRML
 
 $GRUEN && echo "Installation finished. You may now check the system or reboot."
 $GELB && echo "root password is falkland, hostname ist not yet set and keymap is set to US."
-echo "For further question write to falkland@pilarkto.org"
-echo " or visit Projekt-Wiki: http://wiki.open-laboratory.de/Intern:IT:HowTo:Gentoo_Install"
+$NRML
+echo "Visit Projekt-Wiki: http://wiki.open-laboratory.de/Intern:IT:HowTo:Gentoo_Install"
 echo "Have fun"
 $NRML
