@@ -43,6 +43,7 @@
 # emerge -j CPU#
 # modules check (loaded in grml) and in the kernel
 # TODO
+# Parse cmd parameter correct e.g. -q= (needed for add hostname and mirror from cmd direct)
 # offer precompiled VM Kernel
 # Kernel config from seperate own mirror
 # -> obsolet wg udev dev/pts sauber in die fstab (nicht aus dem live-system) oder das nehmen, das drin ist
@@ -52,7 +53,7 @@
 # rc-update sshd (abfrage in cmd), wenn angegeben ja ansonsten nix
 # Prozessorkerne und emerge -j Option
 ### DEBUG
-#set -x
+set -x
 #
 
 # Set default editor
@@ -62,21 +63,24 @@ PD=0
 # and using default mirror
 OWNMIRROR=0
 
-if [ "$1" != '-q' ] && [ "$1" != "-i" ] || [ $# = 0 ]; then
+if [ "$1" != '-q' ] && [ "$1" != "-i" ] || [ $# = 0 ] || [ "$1" = '-h' ] ; then
 	echo "install-gentoo_srv.sh - Script for Installing Gentoo-Server"
-	echo "USAGE: sh install-gentoo_srv.sh -i|-q dhcp,IPs [-pd] [-om]"
-	echo "-h : help"
-	echo "-q : quiet Installation with defaults (for quiet you have to set >IP,gateway< or >dhcp<)"
-        #echo "-n=hostname : Name of the host aka. hostname or hostname.domnain.tld (FQDN)"
-	echo "-i : interactive"
-	echo "-om: own mirror. You can specify altenativ mirror interactivly"
-	echo "-pd : Predefined disks (Expecting:"
-	echo "		already mounted disks (/mnt/xxx/ and /mnt/xxx/boot) "
-	echo "      with empty filesystem on it "
-	echo "		and not chrooted." 
-	echo "		This is recommend for md"
-	echo "		For md-devices respect the metadata=0.9 for grub(1)"
-    echo "-pk: precompiled kernel. See at http://www.pilarkto.net/mirror which version."
+	echo "==========================================================================================="
+	echo "USAGE: sh install-gentoo_srv.sh -i|-q=dhcp/IPs [-i] [-n=hostname] [-om] [-pd] [pk]"
+	echo " -h : help"
+	echo " -q : quiet Installation with defaults (for quiet you have to set >IP,gateway< or >dhcp<)"
+        echo " -n=hostname : Name of the host aka. hostname or hostname.domnain.tld (FQDN)"
+	echo " -i : interactive"
+	echo " -om=[MIRROR]: Own mirror. You can specify altenativ mirror. "
+	echo "      If Mode interactive, you will be asked later, else" 
+	echo "      URL must be specified to stage3-latest.tar.bz2 and portage-latest.tar.bz2 (assuming both lying on the same place) "
+	echo " -pd : Predefined disks (Expecting:"
+	echo "	    already mounted disks (/mnt/xxx/ and /mnt/xxx/boot) "
+	echo "      with empty filesystem on it and not chrooted." 
+	echo "	    This is recommend for md"
+	echo "	    For md-devices respect the metadata=0.9 for grub(1)"
+    	echo " -pk: precompiled kernel. See at http://www.pilarkto.net/mirror which version."
+	echo "==========================================================================================="
 	echo "THIS IS BETA STUFF. Please use only empty systems. Script erase disk to install !"
 	exit 1
 fi
@@ -88,28 +92,43 @@ fi
 
 for i in "$@"
 do
-	if [ "$i" = "-q" ]; then
-		MODE="Q"
-	elif [ "$i" = "-i" ]; then
-		MODE="I"
-	elif [ "$i" = "-pd" ]; then
-	# disks ARE predefinied
-		PD=1
-	elif [ "$i" = "dhcp" ]; then
-		NET="dhcp"
-	elif [ "$i" = "-om" ]; then
-		OWNMIRROR=1
-	elif [ "$i" = "-pk" ]; then
-		PREK=1
-	else
-		# only IP is now left
-		NET="$i"
-	fi
+case $i in
+    -q=*)
+    NET="${i#*=}"
+    shift # past argument=value
+    MODE="Q"
+    ;;
+    -i)
+    MODE="I"
+    shift # past argument=value
+    ;;
+    -om=*)
+    INSTSRV="${i#*=}"
+    OWNMIRROR=1
+    shift # past argument=value
+    ;;
+    -pd)
+    PD=1
+    shift # past argument=value
+    ;;
+    -pk)
+    PREK=1
+    shift # past argument=value
+    ;;
+    -n=*)
+    HNAME="${i#*=}"
+    shift # past argument=value
+    ;;
+    *)
+            # unknown option
+    ;;
+esac
 done
 
 if [ "$HNAME" = "" ]; then
 	HNAME="localhost"
 fi
+
 
 if [ "$MODE" = 'Q' ]; then
 	if [ "$2" != "dhcp" ] && [ "$2" = "" ]; then
@@ -130,18 +149,25 @@ if [ $OWNMIRROR = 0 ]; then
 	#PURL="http://git.nitso.org/falkland-portage.git"
 	PURL="rsync://rsync8.de.gentoo.org/gentoo-portage"
 else
-	echo "Assuming stage3 and portage are on the same dir on URL"
-	echo "Which protocoll you want to use ? [http,ftp]"
-	read PROTO
-	echo "What is the name or IP of the mirror-server you want to use ? (example: distfiles.nitso.org or 192.168.0.1)"
-	read INSTSRV
-	echo "In which directory are the files on this server ?"
-	echo "(example: mirror for 192.168.0.1/mirror/[stage3-latest|portage-latest] )"
-	read RPATH
-	FLURL="$PROTO://$INSTSRV/$RPATH/stage3-latest.tar.bz2"
-	PURL="$PROTO://$INSTSRV/$RPATH/portage-latest.tar.bz2"
-	echo "Assuming stage3-URL: $FLURL"
-	echo "Assuming portage-URL: $PURL"	
+	if [ "$MODE" = "I" ]; then
+		echo "Assuming stage3 and portage are on the same dir on URL"
+		echo "Which protocoll you want to use ? [http,ftp]"
+		read PROTO
+		echo "What is the name or IP of the mirror-server you want to use ? (example: distfiles.nitso.org or 192.168.0.1)"
+		read INSTSRV
+		echo "In which directory are the files on this server ?"
+		echo "(example: mirror for 192.168.0.1/mirror/[stage3-latest|portage-latest] )"
+		read RPATH
+		FLURL="$PROTO://$INSTSRV/$RPATH/stage3-latest.tar.bz2"
+		PURL="$PROTO://$INSTSRV/$RPATH/portage-latest.tar.bz2"
+	## IF Quiet-Mode and OwnMirror
+	else
+		FLURL="$INSTSRV/stage3-latest.tar.bz2"
+		PURL="$INSTSRV/portage-latest.tar.bz2"
+	fi
+		echo "Assuming stage3-URL: $FLURL"
+		echo "Assuming portage-URL: $PURL"	
+
 fi
 
 
@@ -403,11 +429,11 @@ $NRML
 if [ "$MODE" = "I" ]; then
 	chroot $MNTRT /bin/passwd 
 else
-	echo "falkland" > .pw-file
-	echo "falkland" >> .pw-file
+	echo "pilarkto" > .pw-file
+	echo "pilarkto" >> .pw-file
 	chroot $MNTRT /bin/passwd < .pw-file
 	rm -f .pw-file
-	$GELB && echo "Password set to: falkland"
+	$GELB && echo "Password set to: pilarkto"
 	$NRML
 fi
 
@@ -502,7 +528,7 @@ do
 done < hddmod.lst
 
 $GRUEN && echo "Installation finished. You may now check the system or reboot."
-$GELB && echo "root password is falkland, hostname ist not yet set and keymap is set to US."
+$GELB && echo "root password is pilarkto, hostname ist not yet set and keymap is set to US."
 $NRML
 echo "Visit Projekt-Wiki: http://wiki.open-laboratory.de/Intern:IT:HowTo:Gentoo_Install"
 echo "Have fun"
