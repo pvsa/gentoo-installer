@@ -104,7 +104,7 @@ esac
 done
 
 
-if [ "$MODE" = "" ] || [ $NOOPT = 1 ] || [ $HELP = 1 ] ; then
+if [ "$MODE" = "" ] || [ "$NOOPT" = 1 ] || [ "$HELP" = 1 ] ; then
 	echo "install-gentoo_srv.sh - Script for Installing Gentoo-Server"
 	echo "==========================================================================================="
 	echo "USAGE: sh install-gentoo_srv.sh -i|-q=dhcp/IPs [-i] [-n=hostname] [-om] [-pd] [pk]"
