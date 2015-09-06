@@ -281,7 +281,10 @@ $NRML
 if [ $OWNMIRROR = 0 ]; then
     rsync -r --info=progress2 $PURL/ $MNTRT/usr/portage/
 else
-    curl -# $PURL
+    curl -# -O $PURL
+    $GRUEN && echo "Unpacking portage"
+    $NRML
+    mkdir -p $MNTRT/usr/portage/
     tar -xf portage-latest.tar.bz2 -C $MNTRT/usr/portage/
 fi
 #wget -q $PURL
@@ -358,7 +361,8 @@ cp /etc/resolv.conf $MNTRT/etc/
 #chroot $MNTRT rc-update add net.$NETDEV default
 
 # compiling Kernel
-echo "Compiling Kernel"
+$GRUEN && echo "Compiling Kernel"
+$NRML
  chroot $MNTRT /bin/bash -c "emerge -q --sync"
  chroot $MNTRT /bin/bash -c "emerge -q -j$CPU gentoo-sources"
  LINUX="`ls $MNTRT/usr/src/linux-*`"
