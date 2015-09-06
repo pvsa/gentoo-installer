@@ -518,10 +518,10 @@ do
  else
     $GRUEN && echo "OK"
  fi
-done < netmod.lst
+done < /tmp/netmods.lst
 
 # needed hdd drivers
-lsmod|grep ata|cut -d ' ' -f 1 > /tmp/hddmod.lst
+lsmod|grep ata|cut -d ' ' -f 1 > /tmp/hddmods.lst
 while read MOD
 do
  echo "$MOD:"
@@ -534,7 +534,7 @@ do
  else
     $GRUEN && echo "OK"
  fi
-done < hddmod.lst
+done < /tmp/hddmods.lst
 
 $GRUEN && echo "Installation finished. You may now check the system or reboot."
 $GELB && echo "root password is pilarkto, hostname ist not yet set and keymap is set to US."
