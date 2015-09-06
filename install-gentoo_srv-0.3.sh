@@ -282,6 +282,8 @@ if [ $OWNMIRROR = 0 ]; then
     rsync -r --info=progress2 $PURL/ $MNTRT/usr/portage/
 else
     curl -# -O $PURL
+    $GRUEN && echo "Unpacking portage"
+    $NRML
     mkdir -p $MNTRT/usr/portage/
     tar -xf portage-latest.tar.bz2 -C $MNTRT/usr/portage/
 fi
