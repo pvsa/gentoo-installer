@@ -139,8 +139,8 @@ fi
 
 
 if [ "$MODE" = 'Q' ]; then
-	if [ "$2" != "dhcp" ] && [ "$2" = "" ]; then
-		echo 'You have to set IP,gateway or dhcp for quiet-Mode and respect order'
+	if [ "$NET" = "" ]; then
+		echo 'You have to set IP,gateway or dhcp for quiet-Mode.'
 		exit 1
 	fi
 fi
