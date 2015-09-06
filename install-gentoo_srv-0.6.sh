@@ -404,10 +404,11 @@ $GRUEN && echo "Getting pre-compiled Kernel"
 $NRML
     wget -q http://www.pilarkto.net/mirror/latest-precompiled_kernel.txt -O /tmp/pck.txt
     KERNELVER="`cat /tmp/pck.txt`"
-    wget -q http://www.pilarkto.net/mirror/$KERNELVER/config
-    wget -q http://www.pilarkto.net/mirror/$KERNELVER/vmlinuz
-    mv config /boot/config-$KERNELVER
-    mv vmlinuz /boot/vmlinuz-$KERNELVER
+    echo "Kernel version: $KERNELVER"
+    curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/config
+    curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/vmlinuz
+    mv config /boot/"config-$KERNELVER"
+    mv vmlinuz /boot/"vmlinuz-$KERNELVER"
     rm /tmp/pck.txt
 else
 $GRUEN && echo "Getting Kernel-Sources"
