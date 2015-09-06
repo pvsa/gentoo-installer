@@ -399,7 +399,7 @@ $NRML
 
 
 # compiling Kernel
-if [ $PREK=1 ]; then
+if [ "$PREK"= "1" ]; then
 $GRUEN && echo "Getting pre-compiled Kernel"
 $NRML
     wget -q http://www.pilarkto.net/mirror/latest-precompiled_kernel.txt -O /tmp/pck.txt
