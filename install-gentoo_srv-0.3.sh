@@ -54,7 +54,7 @@
 #set -x
 #
 
-# Set cefault editor
+# Set default editor
 EDITOR="vim"
 # assuming disk(s) are not defnied
 PD=0
@@ -105,8 +105,8 @@ do
 	fi
 done
 
-if [ $HNAME = "" ]; then
-	$HNAME="localhost"
+if [ "$HNAME" = "" ]; then
+	HNAME="localhost"
 fi
 
 if [ "$MODE" = 'Q' ]; then
