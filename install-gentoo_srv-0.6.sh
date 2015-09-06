@@ -398,15 +398,16 @@ $NRML
 
 
 # compiling Kernel
-if [ PREK=1 ]; then
+if [ $PREK=1 ]; then
 $GRUEN && echo "Getting pre-compiled Kernel"
 $NRML
-    wget -q http://www.pialrkto.net/mirror/latest-precompiled_kernel.txt -O /tmp/pck.txt
+    wget -q http://www.pilarkto.net/mirror/latest-precompiled_kernel.txt -O /tmp/pck.txt
     KERNELVER="`cat /tmp/pck.txt`"
-    wget -q http://www.pialrkto.net/mirror/$KERNELVER/config
-    wget -q http://www.pialrkto.net/mirror/$KERNELVER/vmlinuz
+    wget -q http://www.pilarkto.net/mirror/$KERNELVER/config
+    wget -q http://www.pilarkto.net/mirror/$KERNELVER/vmlinuz
     mv config /boot/config-$KERNELVER
     mv vmlinuz /boot/vmlinuz-$KERNELVER
+    rm /tmp/pck.txt
 else
 $GRUEN && echo "Getting Kernel-Sources"
 $NRML
