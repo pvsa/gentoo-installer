@@ -51,7 +51,7 @@
 # rc-update sshd (abfrage in cmd), wenn angegeben ja ansonsten nix
 # Prozessorkerne und emerge -j Option
 ### DEBUG
-set -x
+#set -x
 #
 
 # Set cefault editor
@@ -106,8 +106,8 @@ do
 	fi
 done
 
-if [ $HNAME = "" ]; then
-	$HNAME="localhost"
+if [ "$HNAME" = "" ]; then
+	HNAME="localhost"
 fi
 
 if [ "$MODE" = 'Q' ]; then
@@ -187,7 +187,6 @@ else
 fi
 
 
-
 # ssh starten
 if [ "`netstat -tan|grep -c ':22 '`" = "0" ]; then
         $GRUEN
@@ -262,6 +261,7 @@ elif [ $PD = 1 ]; then
 	echo "Which is boot device for grub (Grub Version 0.9)"
 	read BOOTDEV
 fi
+
 
 #stage 3 extracting
 $GRUEN && echo "Getting stage3"
