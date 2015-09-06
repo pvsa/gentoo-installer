@@ -43,7 +43,6 @@
 # emerge -j CPU#
 # modules check (loaded in grml) and in the kernel
 # TODO
-# Parse cmd parameter correct e.g. -q= (needed for add hostname and mirror from cmd direct)
 # offer precompiled VM Kernel
 # Kernel config from seperate own mirror
 # -> obsolet wg udev dev/pts sauber in die fstab (nicht aus dem live-system) oder das nehmen, das drin ist
@@ -63,66 +62,20 @@ PD=0
 # and using default mirror
 OWNMIRROR=0
 
-for i in "$@"
-do
-case $i in
-    -h)
-    HELP=1
-    shift # past argument=value
-    ;;
-    -q=*)
-    NET="${i#*=}"
-    shift # past argument=value
-    MODE="Q"
-    ;;
-    -i)
-    MODE="I"
-    shift # past argument=value
-    ;;
-    -om=*)
-    INSTSRV="${i#*=}"
-    OWNMIRROR=1
-    shift # past argument=value
-    ;;
-    -pd)
-    PD=1
-    shift # past argument=value
-    ;;
-    -pk)
-    PREK=1
-    shift # past argument=value
-    ;;
-    -n=*)
-    HNAME="${i#*=}"
-    shift # past argument=value
-    ;;
-    *)
-    NOOPT=1
-            # unknown option
-    ;;
-esac
-done
-
-
-if [ "$MODE" = "" ] || [ "$NOOPT" = 1 ] || [ "$HELP" = 1 ] ; then
+if [ "$1" != '-q' ] && [ "$1" != "-i" ] || [ $# = 0 ]; then
 	echo "install-gentoo_srv.sh - Script for Installing Gentoo-Server"
-	echo "==========================================================================================="
-	echo "USAGE: sh install-gentoo_srv.sh -i|-q=dhcp/IPs [-i] [-n=hostname] [-om=[MIRROR]] [-pd] [pk]"
-	echo " -h : help"
-	echo " -q=dhcp/IPs: quiet Installation with defaults (for quiet you have to set >IP,gateway< or >dhcp<)"
-        echo " -n=hostname : Name of the host aka. hostname or hostname.domnain.tld (FQDN)"
-	echo " -i : interactive"
-	echo " -om=[MIRROR]: Own mirror. You can specify altenativ mirror. "
-	echo "      If Mode interactive, you will be asked later, else" 
-	echo "      URL (with trailing /) must be specified to "
-	echo "	    stage3-latest.tar.bz2 and portage-latest.tar.bz2 (assuming both lying on the same place) "
-	echo " -pd: Predefined disks (Expecting:"
-	echo "	    already mounted disks (/mnt/xxx/ and /mnt/xxx/boot) "
-	echo "      with empty filesystem on it and not chrooted." 
-	echo "	    This is recommend for md"
-	echo "	    For md-devices respect the metadata=0.9 for grub(1)"
-    	echo " -pk: precompiled kernel. See at http://www.pilarkto.net/mirror which version."
-	echo "==========================================================================================="
+	echo "USAGE: sh install-gentoo_srv.sh -i|-q dhcp,IPs [-pd] [-om]"
+	echo "-h : help"
+	echo "-q : quiet Installation with defaults (for quiet you have to set >IP,gateway< or >dhcp<)"
+        #echo "-n=hostname : Name of the host aka. hostname or hostname.domnain.tld (FQDN)"
+	echo "-i : interactive"
+	echo "-om: own mirror. You can specify altenativ mirror interactivly"
+	echo "-pd : Predefined disks (Expecting:"
+	echo "		already mounted disks (/mnt/xxx/ and /mnt/xxx/boot) "
+	echo "      with empty filesystem on it "
+	echo "		and not chrooted." 
+	echo "		This is recommend for md"
+	echo "		For md-devices respect the metadata=0.9 for grub(1)"
 	echo "THIS IS BETA STUFF. Please use only empty systems. Script erase disk to install !"
 	exit 1
 fi
@@ -132,16 +85,34 @@ if [ `uname -m |grep -c 64` = 0 ]; then
 	exit 1
 fi
 
-
+for i in "$@"
+do
+	if [ "$i" = "-q" ]; then
+		MODE="Q"
+	elif [ "$i" = "-i" ]; then
+		MODE="I"
+	elif [ "$i" = "-pd" ]; then
+	# disks ARE predefinied
+		PD=1
+	elif [ "$i" = "dhcp" ]; then
+		NET="dhcp"
+	elif [ "$i" = "-om" ]; then
+		OWNMIRROR=1
+       # elif [ `echo "$i" || grep '-n='` ]; then
+       # HNAME="` echo ${i:4}`"
+	else
+		# only IP is now left
+		NET="$i"
+	fi
+done
 
 if [ "$HNAME" = "" ]; then
 	HNAME="localhost"
 fi
 
-
 if [ "$MODE" = 'Q' ]; then
-	if [ "$NET" = "" ]; then
-		echo 'You have to set IP,gateway or dhcp for quiet-Mode.'
+	if [ "$2" != "dhcp" ] && [ "$2" = "" ]; then
+		echo 'You have to set IP,gateway or dhcp for quiet-Mode and respect order'
 		exit 1
 	fi
 fi
@@ -158,25 +129,18 @@ if [ $OWNMIRROR = 0 ]; then
 	#PURL="http://git.nitso.org/falkland-portage.git"
 	PURL="rsync://rsync8.de.gentoo.org/gentoo-portage"
 else
-	if [ "$MODE" = "I" ]; then
-		echo "Assuming stage3 and portage are on the same dir on URL"
-		#echo "Which protocoll you want to use ? [http,ftp]"
-		PROTO="http"
-		echo "What is the name or IP of the mirror-server you want to use ? (example: distfiles.nitso.org or 192.168.0.1)"
-		read INSTSRV
-		echo "In which directory are the files on this server ?"
-		echo "(example: mirror for 192.168.0.1/mirror/[stage3-latest|portage-latest] )"
-		read RPATH
-		FLURL="$PROTO://$INSTSRV/$RPATH/stage3-latest.tar.bz2"
-		PURL="$PROTO://$INSTSRV/$RPATH/portage-latest.tar.bz2"
-	## IF Quiet-Mode and OwnMirror
-	else
-		FLURL="$INSTSRV/stage3-latest.tar.bz2"
-		PURL="$INSTSRV/portage-latest.tar.bz2"
-	fi
-		echo "Assuming stage3-URL: $FLURL"
-		echo "Assuming portage-URL: $PURL"	
-
+	echo "Assuming stage3 and portage are on the same dir on URL"
+	echo "Which protocoll you want to use ? [http,ftp]"
+	read PROTO
+	echo "What is the name or IP of the mirror-server you want to use ? (example: distfiles.nitso.org or 192.168.0.1)"
+	read INSTSRV
+	echo "In which directory are the files on this server ?"
+	echo "(example: mirror for 192.168.0.1/mirror/[stage3-latest|portage-latest] )"
+	read RPATH
+	FLURL="$PROTO://$INSTSRV/$RPATH/stage3-latest.tar.bz2"
+	PURL="$PROTO://$INSTSRV/$RPATH/portage-latest.tar.bz2"
+	echo "Assuming stage3-URL: $FLURL"
+	echo "Assuming portage-URL: $PURL"	
 fi
 
 
@@ -308,7 +272,7 @@ curl -# -O $FLURL
 $GRUEN && echo "Unpacking stage3"
 $NRML
 STG3="`ls stage3*.tar.bz2`"
-tar --numeric-owner -xjpf $STG3
+tar -xf $STG3
 mv $STG3 $MNTRT/root/
 
 #portage extracting
@@ -371,49 +335,33 @@ elif [ "$MODE" = "Q" ]; then
 	if [ "$NET" = "dhcp" ]; then
 		echo 'config_eth0="dhcp"' >> $MNTRT/etc/conf.d/net
 	else
-    		IP="`echo $NET| cut -d ',' -f 1`"
-	    	GW="`echo $NET| cut -d ',' -f 2`"
-	    	echo "config_$NETDEV=\"$IP netmask 255.255.255.0\"" >>  $MNTRT/etc/conf.d/net
-	    	echo "routes_$NETDEV=\"default via $GW\"" >>  $MNTRT/etc/conf.d/net
-	    	#Namesever
-	    	## German Priv. Foundation
-	    	echo "nameserver 87.118.100.175" > $MNTRT/etc/resolv.conf
-	    	## FoeBuD
-	    	echo "nameserver 85.214.73.63" >> $MNTRT/etc/resolv.conf
-            echo "$IP $HNAME" >> $MNTRT/etc/hosts
+		IP="`echo $NET| cut -d ',' -f 1`"
+		GW="`echo $NET| cut -d ',' -f 2`"
+		echo "config_$NETDEV=\"$IP netmask 255.255.255.0\"" >>  $MNTRT/etc/conf.d/net
+		echo "routes_$NETDEV=\"default via $GW\"" >>  $MNTRT/etc/conf.d/net
+		#Namesever
+		## German Priv. Foundation
+		echo "nameserver 87.118.100.175" > $MNTRT/etc/resolv.conf
+		## FoeBuD
+		echo "nameserver 85.214.73.63" >> $MNTRT/etc/resolv.conf
+
 	fi
     echo "hostname=\"$HNAME\" " > $MNTRT/etc/conf.d/hostname
-
+    echo "$IP $HNAME" >> $MNTRT/etc/hosts
 fi
 
 chroot $MNTRT ln -s /etc/init.d/net.lo /etc/init.d/net.$NETDEV
 DNS="`cat /etc/resolv.conf |grep nameserver |cut -d " "  -f 2`"
 echo "Setting DNS-Server to $DNS (like actual active system)"
 cp /etc/resolv.conf $MNTRT/etc/
+#chroot $MNTRT rc-update add net.$NETDEV default
 
-
-# syncing portage
+# compiling Kernel
 $GRUEN && echo "Syncing Portage"
 $NRML
  chroot $MNTRT /bin/bash -c "emerge -q --sync"
-
-
 # compiling Kernel
-if [ "$PREK"= "1" ]; then
-$GRUEN && echo "Getting pre-compiled Kernel"
-$NRML
-    wget -q http://www.pilarkto.net/mirror/latest-precompiled_kernel.txt -O /tmp/pck.txt
-    KERNELVER="`cat /tmp/pck.txt`"
-    echo "Kernel version: $KERNELVER"
-    curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/config
-    curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/vmlinuz
-    curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/modules.tar.bz2
-    mv config /boot/"config-$KERNELVER"
-    mv vmlinuz /boot/"vmlinuz-$KERNELVER"
-    tar -xf modules.tar.bz2 -C /lib/modules/
-    rm /tmp/pck.txt
-else
-$GRUEN && echo "Getting Kernel-Sources"
+$GRUEN && echo "Getting Kernel"
 $NRML
  chroot $MNTRT /bin/bash -c "emerge -q -j$CPU gentoo-sources"
  LINUX="`ls $MNTRT/usr/src/linux-*`"
@@ -423,7 +371,6 @@ $NRML
  mv config-latest $MNTRT/usr/src/$LINUX-config
  #echo "to setup default settings just save the config and exit [Enter=Go on]"
  #read
-
 $GRUEN && echo "Compiling Kernel"
 $NRML
  echo -e "\t" >> $MNTRT/usr/src/menuconfig.in
@@ -433,8 +380,6 @@ $NRML
 $GELB && echo "Logging kernel compiling to $MNTRT/usr/src/$LINUX_compile.log"
 $NRML
  chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make -j$CPU all; make -j$CPU modules_install; make -j$CPU install" > $MNTRT/usr/src/$LINUX_compile.log
-fi
-
 
 # setting passwd
 $GELB && echo "Set password:"
@@ -442,11 +387,11 @@ $NRML
 if [ "$MODE" = "I" ]; then
 	chroot $MNTRT /bin/passwd 
 else
-	echo "pilarkto" > .pw-file
-	echo "pilarkto" >> .pw-file
+	echo "falkland" > .pw-file
+	echo "falkland" >> .pw-file
 	chroot $MNTRT /bin/passwd < .pw-file
 	rm -f .pw-file
-	$GELB && echo "Password set to: pilarkto"
+	$GELB && echo "Password set to: falkland"
 	$NRML
 fi
 
@@ -499,12 +444,11 @@ if [ "`cat $MNTRT/boot/grub/device.map|grep $BOOTDEV`" = "" ]; then
 fi
 chroot $MNTRT /sbin/grub-install --no-floppy $BOOTDEV
 
-# emerge sshd
+# re-emerge sshd - falkland bug
 $GRUEN && echo "emerge openSSHd and activate at startup"
 $NRML
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge -q openssh"
-#chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;/etc/init.d/sshd start"
-chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;rc-update add sshd default"
+chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;rc-update add sshd"
 
 $GRUEN && echo "Checking for necessary Net and Disk modules"
 $NRML
@@ -522,10 +466,10 @@ do
  else
     $GRUEN && echo "OK"
  fi
-done < /tmp/netmods.lst
+done < netmod.lst
 
 # needed hdd drivers
-lsmod|grep ata|cut -d ' ' -f 1 > /tmp/hddmods.lst
+lsmod|grep ata|cut -d ' ' -f 1 > /tmp/hddmod.lst
 while read MOD
 do
  echo "$MOD:"
@@ -538,10 +482,10 @@ do
  else
     $GRUEN && echo "OK"
  fi
-done < /tmp/hddmods.lst
+done < hddmod.lst
 
 $GRUEN && echo "Installation finished. You may now check the system or reboot."
-$GELB && echo "root password is pilarkto, hostname ist not yet set and keymap is set to US."
+$GELB && echo "root password is falkland, hostname ist not yet set and keymap is set to US."
 $NRML
 echo "Visit Projekt-Wiki: http://wiki.open-laboratory.de/Intern:IT:HowTo:Gentoo_Install"
 echo "Have fun"
