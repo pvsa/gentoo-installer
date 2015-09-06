@@ -407,8 +407,10 @@ $NRML
     echo "Kernel version: $KERNELVER"
     curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/config
     curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/vmlinuz
+    curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/modules.tar.bz2
     mv config /boot/"config-$KERNELVER"
     mv vmlinuz /boot/"vmlinuz-$KERNELVER"
+    tar -xf modules.tar.bz2 -C /lib/modules/
     rm /tmp/pck.txt
 else
 $GRUEN && echo "Getting Kernel-Sources"
