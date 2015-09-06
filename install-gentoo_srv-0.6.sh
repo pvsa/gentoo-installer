@@ -114,8 +114,9 @@ if [ "$MODE" = "" ] || [ "$NOOPT" = 1 ] || [ "$HELP" = 1 ] ; then
 	echo " -i : interactive"
 	echo " -om=[MIRROR]: Own mirror. You can specify altenativ mirror. "
 	echo "      If Mode interactive, you will be asked later, else" 
-	echo "      URL must be specified to stage3-latest.tar.bz2 and portage-latest.tar.bz2 (assuming both lying on the same place) "
-	echo " -pd : Predefined disks (Expecting:"
+	echo "      URL (with trailing /) must be specified to "
+	echo "	    stage3-latest.tar.bz2 and portage-latest.tar.bz2 (assuming both lying on the same place) "
+	echo " -pd: Predefined disks (Expecting:"
 	echo "	    already mounted disks (/mnt/xxx/ and /mnt/xxx/boot) "
 	echo "      with empty filesystem on it and not chrooted." 
 	echo "	    This is recommend for md"
@@ -159,8 +160,8 @@ if [ $OWNMIRROR = 0 ]; then
 else
 	if [ "$MODE" = "I" ]; then
 		echo "Assuming stage3 and portage are on the same dir on URL"
-		echo "Which protocoll you want to use ? [http,ftp]"
-		read PROTO
+		#echo "Which protocoll you want to use ? [http,ftp]"
+		PROTO="http"
 		echo "What is the name or IP of the mirror-server you want to use ? (example: distfiles.nitso.org or 192.168.0.1)"
 		read INSTSRV
 		echo "In which directory are the files on this server ?"
