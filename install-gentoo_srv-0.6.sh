@@ -68,7 +68,7 @@ if [ "$1" != '-q' ] && [ "$1" != "-i" ] || [ $# = 0 ] || [ "$1" = '-h' ] ; then
 	echo "==========================================================================================="
 	echo "USAGE: sh install-gentoo_srv.sh -i|-q=dhcp/IPs [-i] [-n=hostname] [-om] [-pd] [pk]"
 	echo " -h : help"
-	echo " -q : quiet Installation with defaults (for quiet you have to set >IP,gateway< or >dhcp<)"
+	echo " -q=dhcp/IPs: quiet Installation with defaults (for quiet you have to set >IP,gateway< or >dhcp<)"
         echo " -n=hostname : Name of the host aka. hostname or hostname.domnain.tld (FQDN)"
 	echo " -i : interactive"
 	echo " -om=[MIRROR]: Own mirror. You can specify altenativ mirror. "
