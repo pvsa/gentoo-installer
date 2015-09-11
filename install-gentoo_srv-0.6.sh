@@ -414,12 +414,11 @@ $NRML
     $GRUEN && echo "--Getting modules"
     $NRML
     curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/modules.tar.bz2
-    mv config /boot/"config-$KERNELVER"
-    mv vmlinuz /boot/"vmlinuz-$KERNELVER"
+    mv config $MNTRT/boot/"config-$KERNELVER"
+    mv vmlinuz $MNTRT/boot/"vmlinuz-$KERNELVER"
     mkdir -p $MNTRT/lib/modules
     tar -xf modules.tar.bz2 -C $MNTRT/lib/modules/
     rm /tmp/pck.txt
-    KERNVER=$KERNELVER
 else
 $GRUEN && echo "Getting Kernel-Sources"
 $NRML
