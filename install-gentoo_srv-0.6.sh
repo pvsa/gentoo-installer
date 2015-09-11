@@ -404,14 +404,19 @@ $GRUEN && echo "Getting pre-compiled Kernel"
 $NRML
     wget -q http://www.pilarkto.net/mirror/latest-precompiled_kernel.txt -O /tmp/pck.txt
     KERNELVER="`cat /tmp/pck.txt`"
-    echo "Kernel version: $KERNELVER"
+    echo "-Kernel version: $KERNELVER"
+    echo "--Getting config"
     curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/config
+    echo "--Getting kernel"
     curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/vmlinuz
+    echo "--Getting modules"
     curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/modules.tar.bz2
     mv config /boot/"config-$KERNELVER"
     mv vmlinuz /boot/"vmlinuz-$KERNELVER"
-    tar -xf modules.tar.bz2 -C /lib/modules/
+    mkdir -p $MNTRT/lib/modules
+    tar -xf modules.tar.bz2 -C $MNTRT/lib/modules/
     rm /tmp/pck.txt
+    KERNVER=$KERNELVER
 else
 $GRUEN && echo "Getting Kernel-Sources"
 $NRML
@@ -432,7 +437,7 @@ $NRML
  chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make menuconfig < /usr/src/menuconfig.in"
 $GELB && echo "Logging kernel compiling to $MNTRT/usr/src/$LINUX_compile.log"
 $NRML
- chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make -j$CPU all; make -j$CPU modules_install; make -j$CPU install" > $MNTRT/usr/src/$LINUX_compile.log
+ chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make -j$CPU all; make -j$CPU modules_install; make -j$CPU install" > $MNTRT/usr/src/$LINUX-compile.log
 fi
 
 
@@ -513,7 +518,7 @@ lsmod|grep net|cut -d ' ' -f 1 > /tmp/netmods.lst
 while read MOD
 do
  echo "$MOD:"
- find -nowarn $MNTRT/lib/modules/ |grep "$MOD"
+ find $MNTRT/lib/modules/ |grep "$MOD"
  if [ $? != 0 ]; then
     $GELB && echo "module: $MOD NOT EXISTING (or compiled in kernel). Please check if module needed and if so, fix it manually"
     echo "Find following in kernel config:"
@@ -529,7 +534,7 @@ lsmod|grep ata|cut -d ' ' -f 1 > /tmp/hddmods.lst
 while read MOD
 do
  echo "$MOD:"
- find -nowarn $MNTRT/lib/modules/ |grep "$MOD"
+ find $MNTRT/lib/modules/ |grep "$MOD"
  if [ $? != 0 ]; then
 	$GELB && echo "module: $MOD NOT EXISTING (or compiled in kernel). Please check if module needed and if so, fix it manually"
     echo "Find following in kernel config:"
