@@ -528,6 +528,7 @@ do
     cat $MNTRT/boot/config-$KERNVER |grep -i $MOD
  else
     $GRUEN && echo "OK"
+    $NRML
  fi
 done < /tmp/netmods.lst
 
@@ -544,6 +545,7 @@ do
     cat $MNTRT/boot/config-$KERNVER |grep -i $MOD
  else
     $GRUEN && echo "OK"
+    $NRML
  fi
 done < /tmp/hddmods.lst
 
