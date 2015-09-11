@@ -405,11 +405,14 @@ $NRML
     wget -q http://www.pilarkto.net/mirror/latest-precompiled_kernel.txt -O /tmp/pck.txt
     KERNELVER="`cat /tmp/pck.txt`"
     echo "-Kernel version: $KERNELVER"
-    echo "--Getting config"
+    $GRUEN && echo "--Getting config"
+    $NRML
     curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/config
-    echo "--Getting kernel"
+    $GRUEN && echo "--Getting kernel"
+    $NRML
     curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/vmlinuz
-    echo "--Getting modules"
+    $GRUEN && echo "--Getting modules"
+    $NRML
     curl -# -O http://www.pilarkto.net/mirror/$KERNELVER/modules.tar.bz2
     mv config /boot/"config-$KERNELVER"
     mv vmlinuz /boot/"vmlinuz-$KERNELVER"
