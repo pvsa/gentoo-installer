@@ -398,8 +398,8 @@ $NRML
  chroot $MNTRT /bin/bash -c "emerge -q --sync"
 
 
-# compiling Kernel
-if [ "$PREK"= "1" ]; then
+# compiling/getting Kernel
+if [ "$PREK" = "1" ]; then
 $GRUEN && echo "Getting pre-compiled Kernel"
 $NRML
     wget -q http://www.pilarkto.net/mirror/latest-precompiled_kernel.txt -O /tmp/pck.txt
@@ -513,11 +513,11 @@ lsmod|grep net|cut -d ' ' -f 1 > /tmp/netmods.lst
 while read MOD
 do
  echo "$MOD:"
- find $MNTRT/lib/modules/ |grep "$MOD"
+ find -nowarn $MNTRT/lib/modules/ |grep "$MOD"
  if [ $? != 0 ]; then
-	$GELB && echo "module: $MOD NOT EXISTING (or compiled in kernel). Please check if module needed and if so, fix it manually"
-    $NRML
+    $GELB && echo "module: $MOD NOT EXISTING (or compiled in kernel). Please check if module needed and if so, fix it manually"
     echo "Find following in kernel config:"
+    $NRML
     cat $MNTRT/boot/config-$KERNVER |grep -i $MOD
  else
     $GRUEN && echo "OK"
@@ -529,11 +529,11 @@ lsmod|grep ata|cut -d ' ' -f 1 > /tmp/hddmods.lst
 while read MOD
 do
  echo "$MOD:"
- find $MNTRT/lib/modules/ |grep "$MOD"
+ find -nowarn $MNTRT/lib/modules/ |grep "$MOD"
  if [ $? != 0 ]; then
 	$GELB && echo "module: $MOD NOT EXISTING (or compiled in kernel). Please check if module needed and if so, fix it manually"
-    $NRML
     echo "Find following in kernel config:"
+    $NRML
     cat $MNTRT/boot/config-$KERNVER |grep -i $MOD
  else
     $GRUEN && echo "OK"
