@@ -58,6 +58,11 @@ EDITOR="vim"
 PD=0
 # and using default mirror
 OWNMIRROR=0
+# color mapping
+cred="\033[31m"
+cgreen="\033[32m"
+cyellow="\033[33m"
+creset="\033[m"
 
 if [ "$1" != '-q' ] && [ "$1" != "-i" ] || [ $# = 0 ]; then
 	echo "install-gentoo_srv.sh - Script for Installing Gentoo-Server"
@@ -139,44 +144,31 @@ else
 	echo "Assuming portage-URL: $PURL"	
 fi
 
-
-ROT="tput setaf 1"
-GRUEN="tput setaf 2"
-GELB="tput setaf 3"
-NRML="tput op"
 MNTRT="/mnt/gentoosrv"
 ADIR="`pwd`"
 
 #check ram
-$GRUEN 
-echo "Checking ram size" 
-$NRML
+echo -e "${cgreen}Checking ram size${creset}" 
 RAMSZ="`cat /proc/meminfo |grep MemTotal |cut -d ':' -f 2|tr -d ' ' |tr -d 'kB'`"
 if [ $RAMSZ -lt 128000 ]; then
-        $ROT
-        echo "RAM ist too small (<128MB)"
+        echo -e "${cred}RAM ist too small (<128MB)${creset}"
         exit 1
 else
-		$GRUEN && echo "RAM size OK"
-		$NRML
+		echo -e "${cgreen}RAM size OK${creset}"
 		#sleep 3
 fi
 
 
 # check network (-> mirror reachable ?)
-$GRUEN 
-echo "Checking mirror reachable" 
-$NRML
+echo -e "${cgreen}Checking mirror reachable${creset}" 
 #ping -q -c 2 $INSTSRV >/dev/null
 #if [ "$?" != "0" ]; then
 curl -Is $INSTSRV |grep -q 'HTTP/1.1 200 OK'
 if [ $? != 0 ]; then
-        $ROT
-        echo "Server or network down. Not reaching $INSTSRV, exiting"
+        echo -e "${cred}Server or network down. Not reaching $INSTSRV, exiting${creset}"
         exit 1
 else
-		$GRUEN && echo "Mirror reachable"
-		$NRML
+		echo -e "${cgreen}Mirror reachable${creset}"
 		#sleep 3
 fi
 
@@ -184,9 +176,7 @@ fi
 
 # ssh starten
 if [ "`netstat -tan|grep -c ':22 '`" = "0" ]; then
-        $GRUEN
-        echo "SSH is down. Try to activate now"
-        $NRML
+        echo -e "${cgreen}SSH is down. Try to activate now${creset}"
         /etc/init.d/ssh start
 fi
 
@@ -199,9 +189,7 @@ if [ "$MODE" = "I" ]; then
 	echo "--------------------"
 
 	# dselect disk
-	$GELB
-	echo "Wich Disk is for the new system ?"
-	$NRML
+	echo -e "${cyellow}Wich Disk is for the new system ?${creset}"
 	read DISK
 
 	# part. the disk
@@ -251,8 +239,7 @@ elif [ "$MODE" = "Q" ]; then
 	#clean up
 	rm -f fdisc.in
 	echo ""
-	$GRUEN && echo "Partions created"
-	$NRML
+	echo -e "${cgreen}Partions created${creset}"
 fi
 	# reload parttiontable
 	sfdisk -R $DISK
@@ -262,14 +249,12 @@ fi
 	RDISK="${DISK}2"
 
 	# formating filesystem (sys und boot)
-	$GRUEN && echo "Formating partitions"
-	$NRML
+	echo -e "${cgreen}Formating partitions${creset}"
 	mkfs.ext2 -q $BDISK 
 	mkfs.ext4 -q $RDISK
 
 	# create SYS 
-	$GRUEN && echo "Mounting system"
-	$NRML
+	echo -e "${cgreen}Mounting system${creset}"
 	mkdir -p $MNTRT
 	mount $RDISK $MNTRT
 
@@ -282,20 +267,17 @@ elif [ $PD = 1 ]; then
 fi
 
 #stage 3 extracting
-$GRUEN && echo "Getting stage3"
-$NRML
+echo -e "${cgreen}Getting stage3${creset}"
 cd $MNTRT
 #wget -q $FLURL
 curl -# -O $FLURL
-$GRUEN && echo "Unpacking stage3"
-$NRML
+echo -e "${cgreen}Unpacking stage3${creset}"
 tar -xf $STG3
 mv $STG3 $MNTRT/root/
 
 #portage extracting
 #! websync
-$GRUEN && echo "Getting portage"
-$NRML
+echo -e "${cgreen}Getting portage${creset}"
 rsync $PURL/ $MNTRT/usr/portage/
 #wget -q $PURL
 #$GRUEN && echo "Unpacking portage"
@@ -305,8 +287,7 @@ rsync $PURL/ $MNTRT/usr/portage/
 
 
 # mount /boot etc
-$GRUEN && echo "Mounting boot and dependings"
-$NRML
+echo -e "${cgreen}Mounting boot and dependings${creset}"
 if [ $PD = 0 ]; then
 	mount $BDISK $MNTRT/boot
 fi
@@ -329,8 +310,7 @@ if [ $PD = 0 ]; then
 fi
 
 # setting passwd
-$GELB && echo "Set password:"
-$NRML
+echo -e "${cyellow}Set password:${creset}"
 if [ "$MODE" = "I" ]; then
 	chroot $MNTRT /bin/passwd 
 else
@@ -338,14 +318,12 @@ else
 	echo "falkland" >> .pw-file
 	chroot $MNTRT /bin/passwd < .pw-file
 	rm -f .pw-file
-	$GELB && echo "Password set to: falkland"
-	$NRML
+	echo -e "${cyellow}Password set to: falkland${creset}"
 fi
 
 # Network config
 if [ "$MODE"  = "I" ]; then
-	$GELB && echo "Folgende NIC sind verfuegbar: [Enter = Weiter]"
-	$NRML
+	echo -e "${cyellow}Folgende NIC sind verfuegbar: [Enter = Weiter]${creset}"
 	chroot $MNTRT ifconfig -a |grep "Link encap" |cut -d " " -f 1
 	read NETDEV
 	echo "Netzwerk-config - Editor: $EDITOR, File: /etc/conf.d/net (in Chroot)"
@@ -382,8 +360,7 @@ echo "nameserver 213.73.91.35" > $MNTRT/etc/resolv.conf
 echo "nameserver 8.8.8.8" >> $MNTRT/etc/resolv.conf
 
 #!layman
-$GRUEN && echo "Activating Layman and Overlay Falkland"
-$NRML
+echo -e "${cgreen}Activating Layman and Overlay Falkland${creset}"
 cat $MNTRT/etc/layman/layman.cfg |grep -v "overlays  :" > /tmp/layman.cfg
 echo "overlays  : http://www.gentoo.org/proj/en/overlays/repositories.xml
                http://distfiles.nitso.org/linux/falkland/repositories.xml" >> /tmp/layman.cfg
@@ -395,8 +372,7 @@ chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;layman -L" > /dev/nul
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;layman -a falkland"
 
 # Profile 
-$GRUEN && echo "Setting eselect to profile falkland"
-$NRML
+echo -e "${cgreen}Setting eselect to profile falkland${creset}"
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile"
 PROFIL="`chroot $MNTRT /bin/bash -c \"eselect profile list |grep falkland |grep server |cut -d ' ' -f 3|sed 's/\[//g' |sed 's/\]//g'\"`"
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;eselect profile set $PROFIL"
@@ -404,27 +380,23 @@ chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;layman -S" > /dev/nul
 
 # base-extras (grub etc)
 #!
-$GRUEN && echo "Installing package falkland-kernel and portage"
-$NRML
+echo -e "${cgreen}Installing package falkland-kernel and portage${creset}"
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge sys-kernel/falkland"
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge sys-apps/portage"
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge --sync" 2&1>/dev/null
 
 
 # base-extras (grub etc)
-$GRUEN && echo "Installing grub"
-$NRML
+echo -e "${cgreen}Installing grub${creset}"
 #chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge base-extras"
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge sys-boot/grub:0"
 
 # grub-config
 if [ "$MODE" = "I" ]; then
-	$GRUEN && echo "Configure GRUB - menu.lst (Editor: nano)  [Enter]"
-	$NRML
+	echo -e "${cgreen}Configure GRUB - menu.lst (Editor: nano)  [Enter]${creset}"
 	$EDITOR $MNTRT/boot/grub/menu.lst
 elif [ "$MODE" = "Q" ]; then
-	$GRUEN && echo "Configure GRUB - menu.lst"
-	$NRML
+	echo -e "${cgreen}Configure GRUB - menu.lst${creset}"
 	HEREP="`pwd`"
 	cd $MNTRT
 	KERNVER="`find boot/ |grep vmlinuz |sed 's/boot\/vmlinuz-//g'`"
@@ -436,8 +408,7 @@ elif [ "$MODE" = "Q" ]; then
 fi
 
 # fstab etc
-$GRUEN && echo "Generating mtab/fstab"
-$NRML
+echo -e "${cgreen}Generating mtab/fstab${creset}"
 ## mounts holen mit korrektem Pfad
 chroot $MNTRT /bin/bash -c "cat /proc/mounts > /tmp/mounts"
 # mtab
@@ -451,8 +422,7 @@ cat $MNTRT/tmp/mounts |grep $BDISK >> $MNTRT/etc/fstab
 #cat $MNTRT/tmp/mounts |grep devpts |tail -n 1 >> $MNTRT/etc/fstab
 
 #grub-install
-$GRUEN && echo "Installing grub to $BOOTDEV"
-$NRML
+echo -e "${cgreen}Installing grub to $BOOTDEV${creset}"
 # otherwise grub fails with no BIOS drive found
 if [ "`cat $MNTRT/boot/grub/device.map|grep $BOOTDEV`" = "" ]; then
 	echo "(hd0) $BOOTDEV" >> $MNTRT/boot/grub/device.map
@@ -460,12 +430,11 @@ fi
 chroot $MNTRT /sbin/grub-install --no-floppy $BOOTDEV
 
 # re-emerge sshd - falkland bug
-$GRUEN && echo "Re-emerge openSSHd"
-$NRML
+echo -e "${cgreen}Re-emerge openSSHd${creset}"
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge openssh"
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;rc-update add sshd"
 
-$GELB
+echo -e "${cyellow}"
 # needed net modules check
 NETMOD="`lsmod|grep net|cut -d ' ' -f 1`"
 #NETINKERN="`cat $MNTRT/boot/config-$KERNVER |grep -i net`"
@@ -476,14 +445,14 @@ HDDMOD="`lsmod|grep ata|cut -d ' ' -f 1`"
 #HDDINKERN="`cat $MNTRT/boot/config-$KERNVER |grep -i ata`"
 echo -e "Needed net modules loaded: \n $HDDMOD"
 #echo "Needed net device in (new) kernel-config: $HDDINKERN"
-$GELB
+echo -e "${cyellow}"
 echo "Please double check the listed modules and there corresponding kernel-config-option \ 
  to be sure, the new system is booting properly and reach the network"
-$NRML
+echo -e "${creset}"
 
-$GRUEN && echo "Installation finished. You may now check the system or reboot."
-$GELB && echo "root password is falkland, hostname ist not yet set and keymap is set to US."
+echo -e "${cgreen}Installation finished. You may now check the system or reboot."
+echo -e "${cyellow}root password is falkland, hostname ist not yet set and keymap is set to US."
 echo "For further question write to falkland@pilarkto.org"
 echo " or visit Projekt-Wiki: http://wiki.open-laboratory.de/Intern:IT:HowTo:Gentoo_Install"
 echo "Have fun"
-$NRML
+echo -e "${creset}"
