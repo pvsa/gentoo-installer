@@ -53,7 +53,7 @@
 #
 
 # Set cefault editor
-EDITOR="vim"
+EDITOR=${EDITOR=vim}
 # assuming disk(s) are not defnied
 PD=0
 # and using default mirror

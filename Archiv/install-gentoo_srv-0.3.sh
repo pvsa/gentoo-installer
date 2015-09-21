@@ -42,8 +42,7 @@
 # Swap Parition anlegen
 # emerge -j CPU#
 # TODO
-# Kernel config on own mirror
-# modules check (loaded in grml) and in the kernel
+# own-config
 ## falkland-Features
 # -> obsolet wg udev dev/pts sauber in die fstab (nicht aus dem live-system) oder das nehmen, das drin ist
 # TEST: modules fuer hdd/net in kernel pruefen
@@ -56,7 +55,7 @@
 #
 
 # Set default editor
-EDITOR="vim"
+EDITOR=${EDITOR=vim}
 # assuming disk(s) are not defnied
 PD=0
 # and using default mirror
@@ -171,7 +170,7 @@ CPU=`grep -c ^processor /proc/cpuinfo`
 
 # check network (-> mirror reachable ?)
 $GRUEN 
-echo "Checking mirror (stage3) reachable" 
+echo "Checking mirror reachable" 
 $NRML
 #ping -q -c 2 $INSTSRV >/dev/null
 #if [ "$?" != "0" ]; then
@@ -288,6 +287,11 @@ else
     mkdir -p $MNTRT/usr/portage/
     tar -xf portage-latest.tar.bz2 -C $MNTRT/usr/portage/
 fi
+#wget -q $PURL
+#$GRUEN && echo "Unpacking portage"
+#$NRML
+#tar -xf portage-latest.tar.bz2
+#mv portage-latest.tar.bz2 $MNTRT/root/
 
 
 # mount /boot etc
@@ -357,7 +361,7 @@ cp /etc/resolv.conf $MNTRT/etc/
 #chroot $MNTRT rc-update add net.$NETDEV default
 
 # compiling Kernel
-$GRUEN && echo "Getting Kernel"
+$GRUEN && echo "Compiling Kernel"
 $NRML
  chroot $MNTRT /bin/bash -c "emerge -q --sync"
  chroot $MNTRT /bin/bash -c "emerge -q -j$CPU gentoo-sources"
@@ -367,15 +371,11 @@ $NRML
  cp config_amd64_none_amd64 $MNTRT/usr/src/linux/.config
  #echo "to setup default settings just save the config and exit [Enter=Go on]"
  #read
-$GRUEN && echo "Compiling Kernel"
-$NRML
  echo -e "\t" >> $MNTRT/usr/src/menuconfig.in
  echo -e "\n" >> $MNTRT/usr/src/menuconfig.in	
  #echo -e "\n" >> $MNTRT/usr/src/menuconfig.in
  chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make menuconfig < /usr/src/menuconfig.in"
-$GELB && echo "Logging kernel compileing to $MNTRT/usr/src/$LINUX_compile.log"
-$NRML
- chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make -j$CPU all; make -j$CPU modules_install; make -j$CPU install" > $MNTRT/usr/src/$LINUX_compile.log
+ chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make -j$CPU all; make -j$CPU modules_install; make -j$CPU install"
 
 # setting passwd
 $GELB && echo "Set password:"
