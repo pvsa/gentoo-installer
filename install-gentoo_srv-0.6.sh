@@ -387,6 +387,7 @@ elif [ "$MODE" = "Q" ]; then
 fi
 
 chroot $MNTRT ln -s /etc/init.d/net.lo /etc/init.d/net.$NETDEV
+chroot $MNTRT rc-update add net.$NETDEV boot
 DNS="`cat /etc/resolv.conf |grep nameserver |cut -d " "  -f 2`"
 echo "Setting DNS-Server to $DNS (like actual active system)"
 cp /etc/resolv.conf $MNTRT/etc/
