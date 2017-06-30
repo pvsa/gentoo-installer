@@ -424,10 +424,10 @@ else
 $GRUEN && echo "Getting Kernel-Sources"
 $NRML
  chroot $MNTRT /bin/bash -c "emerge -q -j$CPU gentoo-sources >/dev/null"
- LINUX="$(ls $MNTRT/usr/src/|grep linux-)"
+ LINUX="$(ls $MNTRT/usr/src/|grep linux-|head -1|sed s'/\///g')"
  chroot $MNTRT /bin/bash -c "ln -s /usr/src/$LINUX /usr/src/linux"
  wget -q http://www.pilarkto.net/mirror/config-latest 
- $GELB && echo "Using Kernel Version: $(cat config-latest)" && $NRML
+ $GELB && echo "Using Kernel Version: $LINUX" && $NRML
  cp config-latest $MNTRT/usr/src/linux/.config
  mv config-latest $MNTRT/usr/src/$LINUX-config
  #echo "to setup default settings just save the config and exit [Enter=Go on]"
