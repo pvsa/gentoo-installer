@@ -112,7 +112,7 @@ if [ "$MODE" = "" ] || [ "$NOOPT" = 1 ] || [ "$HELP" = 1 ] ; then
 	echo " -q=dhcp/IPs: quiet Installation with defaults (for quiet you have to set >IP,gateway< or >dhcp<)"
         echo " -n=hostname : Name of the host aka. hostname or hostname.domnain.tld (FQDN)"
 	echo " -i : interactive"
-	echo " -om=[MIRROR]: Own mirror. You can specify altenativ mirror. "
+	echo " -om=[MIRROR]: Own mirror. You can specify altenativ mirror (e.g. http://sourserver/mirror). "
 	echo "      If Mode interactive, you will be asked later, else" 
 	echo "      URL (with trailing /) must be specified to "
 	echo "	    stage3-latest.tar.bz2 and portage-latest.tar.bz2 (assuming both lying on the same place) "
