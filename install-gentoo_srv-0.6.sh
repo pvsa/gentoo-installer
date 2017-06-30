@@ -423,7 +423,7 @@ else
 $GRUEN && echo "Getting Kernel-Sources"
 $NRML
  chroot $MNTRT /bin/bash -c "emerge -q -j$CPU gentoo-sources"
- LINUX="`ls $MNTRT/usr/src/|grep linux-`"
+ LINUX="$(ls $MNTRT/usr/src/|grep linux-)"
  chroot $MNTRT /bin/bash -c "ln -s /usr/src/$LINUX /usr/src/linux"
  wget http://www.pilarkto.net/mirror/config-latest 
  cp config-latest $MNTRT/usr/src/linux/.config
@@ -437,7 +437,7 @@ $NRML
  echo -e "\n" >> $MNTRT/usr/src/menuconfig.in	
  #echo -e "\n" >> $MNTRT/usr/src/menuconfig.in
  chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make menuconfig < /usr/src/menuconfig.in"
-$GELB && echo "Logging kernel compiling to $MNTRT/usr/src/$LINUX_compile.log"
+$GELB && echo "Logging kernel compiling to $MNTRT/usr/src/$LINUX-compile.log"
 $NRML
  chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make -j$CPU all; make -j$CPU modules_install; make -j$CPU install" > $MNTRT/usr/src/$LINUX-compile.log
 fi
