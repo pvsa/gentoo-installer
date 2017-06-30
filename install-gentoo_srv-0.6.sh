@@ -396,7 +396,7 @@ cp /etc/resolv.conf $MNTRT/etc/
 # syncing portage
 $GRUEN && echo "Syncing Portage"
 $NRML
- chroot $MNTRT /bin/bash -c "emerge -q --sync"
+ chroot $MNTRT /bin/bash -c "emerge -q --sync >/dev/null"
 
 
 # compiling/getting Kernel
@@ -423,7 +423,7 @@ $NRML
 else
 $GRUEN && echo "Getting Kernel-Sources"
 $NRML
- chroot $MNTRT /bin/bash -c "emerge -q -j$CPU gentoo-sources"
+ chroot $MNTRT /bin/bash -c "emerge -q -j$CPU gentoo-sources >/dev/null"
  LINUX="$(ls $MNTRT/usr/src/|grep linux-)"
  chroot $MNTRT /bin/bash -c "ln -s /usr/src/$LINUX /usr/src/linux"
  wget -q http://www.pilarkto.net/mirror/config-latest 
@@ -463,7 +463,7 @@ fi
 # base-extras (grub etc)
 $GRUEN && echo "Installing grub"
 $NRML
-chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;ABI_X86=32 emerge -q sys-boot/grub:0"
+chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;ABI_X86=32 emerge -q sys-boot/grub:0 >/dev/null"
 
 # grub-config
 if [ "$MODE" = "I" ]; then
@@ -511,9 +511,18 @@ chroot $MNTRT /sbin/grub-install --no-floppy $BOOTDEV
 # emerge sshd
 $GRUEN && echo "emerge openSSHd and activate at startup"
 $NRML
-chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge -q openssh"
+chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge -q openssh >/dev/null"
 #chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;/etc/init.d/sshd start"
 chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;rc-update add sshd default"
+
+# emerge eix gentoolkit and acpid
+$GRUEN && echo "emerge eix, gentoolkit"
+$NRML
+emerge -qD --quiet-build eix gentoolkit acpid >/dev/null
+$GRUEN && echo "emerge ACPId and activate at startup" >/dev/null
+$NRML
+emerge -qD --quiet-build acpid
+chroot $MNTRT /bin/bash -c "rc-update add acpid"
 
 $GRUEN && echo "Checking for necessary Net and Disk modules"
 $NRML
