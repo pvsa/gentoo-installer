@@ -171,6 +171,7 @@ else
 		PURL="$PROTO://$INSTSRV/$RPATH/portage-latest.tar.bz2"
 	## IF Quiet-Mode and OwnMirror
 	else
+		INSTSRV="$(echo $INSTSRV|cut -d "/" -f 3)"
 		FLURL="$INSTSRV/stage3-latest.tar.bz2"
 		PURL="$INSTSRV/portage-latest.tar.bz2"
 	fi
