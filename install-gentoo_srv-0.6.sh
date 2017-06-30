@@ -426,7 +426,8 @@ $NRML
  chroot $MNTRT /bin/bash -c "emerge -q -j$CPU gentoo-sources"
  LINUX="$(ls $MNTRT/usr/src/|grep linux-)"
  chroot $MNTRT /bin/bash -c "ln -s /usr/src/$LINUX /usr/src/linux"
- wget http://www.pilarkto.net/mirror/config-latest 
+ wget -q http://www.pilarkto.net/mirror/config-latest 
+ $GELB && echo "Using Kernel Version: $(cat config-latest)" && $NRML
  cp config-latest $MNTRT/usr/src/linux/.config
  mv config-latest $MNTRT/usr/src/$LINUX-config
  #echo "to setup default settings just save the config and exit [Enter=Go on]"
