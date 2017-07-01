@@ -442,8 +442,9 @@ $NRML
  echo -e "\t" >> $MNTRT/usr/src/menuconfig.in
  echo -e "\n" >> $MNTRT/usr/src/menuconfig.in	
  #echo -e "\n" >> $MNTRT/usr/src/menuconfig.in
+ cp $MNTRT/usr/src/$LINUX-config $MNTRT/usr/src/linux/.config
  chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make menuconfig KCONFIG_CONFIG=/usr/src/$LINUX-config < /usr/src/menuconfig.in"
- cp $MNTRT/usr/src/$LINUX-config /usr/src/linux/.config
+ 
 
 $GELB && echo "Logging kernel compiling to $MNTRT/usr/src/$LINUX-compile.log"
 $NRML
