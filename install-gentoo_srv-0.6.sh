@@ -431,7 +431,7 @@ $NRML
  $GELB && echo "Using Kernel Version: $LINUX" && $NRML
  cp config-latest $MNTRT/usr/src/linux/.config
  mv config-latest $MNTRT/usr/src/$LINUX-config
- #echo "to setup default settings just save the config and exit [Enter=Go on]"
+#echo "to setup default settings just save the config and exit [Enter=Go on]"
  #read
 
 $GRUEN && echo "Compiling Kernel"
@@ -440,6 +440,8 @@ $NRML
  echo -e "\n" >> $MNTRT/usr/src/menuconfig.in	
  #echo -e "\n" >> $MNTRT/usr/src/menuconfig.in
  chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make menuconfig KCONFIG_CONFIG=/usr/src/$LINUX-config < /usr/src/menuconfig.in"
+ cp $MNTRT/usr/src/$LINUX-config /usr/src/linux/.config
+
 $GELB && echo "Logging kernel compiling to $MNTRT/usr/src/$LINUX-compile.log"
 $NRML
  chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make -j$CPU all; make -j$CPU modules_install; make -j$CPU install" > $MNTRT/usr/src/$LINUX-compile.log
@@ -519,10 +521,10 @@ chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;rc-update add sshd de
 # emerge eix gentoolkit and acpid
 $GRUEN && echo "emerge eix, gentoolkit"
 $NRML
-emerge -qD --quiet-build eix gentoolkit acpid >/dev/null
-$GRUEN && echo "emerge ACPId and activate at startup" >/dev/null
+chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge -qD --quiet-build eix gentoolkit acpid >/dev/null"
+$GRUEN && echo "emerge ACPId and activate at startup"
 $NRML
-emerge -qD --quiet-build acpid
+chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;emerge -qD --quiet-build acpid"
 chroot $MNTRT /bin/bash -c "rc-update add acpid"
 
 $GRUEN && echo "Checking for necessary Net and Disk modules"
