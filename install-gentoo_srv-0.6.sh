@@ -171,9 +171,12 @@ else
 		PURL="$PROTO://$INSTSRV/$RPATH/portage-latest.tar.bz2"
 	## IF Quiet-Mode and OwnMirror
 	else
-		INSTSRV="$(echo $INSTSRV|cut -d "/" -f 3)"
+		# get correct URL for download
 		FLURL="$INSTSRV/stage3-latest.tar.bz2"
 		PURL="$INSTSRV/portage-latest.tar.bz2"
+		# shorten the inst.server for ping
+		INSTSRV="$(echo $INSTSRV|cut -d "/" -f 3)"
+		
 	fi
 		echo "Assuming stage3-URL: $FLURL"
 		echo "Assuming portage-URL: $PURL"	
