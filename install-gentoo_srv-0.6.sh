@@ -444,7 +444,7 @@ $NRML
  ##echo -e "\n" >> $MNTRT/usr/src/menuconfig.in
  cp $MNTRT/usr/src/$LINUX-config $MNTRT/usr/src/linux/.config
  #chroot $MNTRT /bin/bash -c "cd /usr/src/linux; make menuconfig KCONFIG_CONFIG=/usr/src/$LINUX-config < /usr/src/menuconfig.in"
- chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;cd /usr/src/linux; make silentoldconfig"
+ chroot $MNTRT /bin/bash -c "env-update;source /etc/profile;cd /usr/src/linux; make olddefconfig"
  
 
 $GELB && echo "Logging kernel compiling to $MNTRT/usr/src/$LINUX-compile.log"
