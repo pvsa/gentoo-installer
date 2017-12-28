@@ -107,7 +107,7 @@ done
 if [ "$MODE" = "" ] || [ "$NOOPT" = 1 ] || [ "$HELP" = 1 ] ; then
 	echo "install-gentoo_srv.sh - Script for Installing Gentoo-Server"
 	echo "==========================================================================================="
-	echo "USAGE: sh install-gentoo_srv.sh -i|-q=dhcp/IPs [-i] [-n=hostname] [-om=[MIRROR]] [-pd] [pk]"
+	echo "USAGE: sh install-gentoo_srv.sh -i|-q=dhcp/IPs [-n=hostname] [-om=[MIRROR]] [-pd] [-pk]"
 	echo " -h : help"
 	echo " -q=dhcp/IPs: quiet Installation with defaults (for quiet you have to set >IP,gateway< or >dhcp<)"
         echo " -n=hostname : Name of the host aka. hostname or hostname.domnain.tld (FQDN)"
