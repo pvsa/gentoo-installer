@@ -1,2 +1,1 @@
-# gentoo-installer
-Installer-Script (initially NITSO falkland-installer)
+Move to https://gitlab.com/pvsa/gentoo-installer
